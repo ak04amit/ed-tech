@@ -245,9 +245,45 @@ exports.login = async (req,res) =>{
 //changePassword--->HOMEWORK
 exports.changePassword = async (req,res)=>{
     //get data from req body 
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user.id;
     //get old password , new password and confirm new password 
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: "User not found"
+        });
+    }
     //validation 
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "All fields are required"
+        });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "New password and confirm password do not match"
+        });
+    }
     //update pasword in db 
-    //send mail - password updated 
-    //return response 
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    //send mail to user
+    const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: user.email,
+        subject: "Password Changed Successfully",
+        text: "Your password has been changed successfully."
+    };
+    await transporter.sendMail(mailOptions);
+    //return response
+    return res.status(200).json({
+        success: true,
+        message: "Password changed successfully"
+    });     
+
+    
 }
