@@ -95,14 +95,14 @@ exports.verifySignature = async (req, res) => {
 
     const signature = req.headers["x-razorpay-signature"];
 
-    const shasum =  crypto.createHmac("sha256", webhookSecret);
-    shasum.update(JSON.stringify(req.body));
-    const digest = shasum.digest("hex");
+    const shasum =  crypto.createHmac("sha256", webhookSecret); //step1
+    shasum.update(JSON.stringify(req.body));//step2
+    const digest = shasum.digest("hex");//step3
 
     if(signature === digest) {
         console.log("Payment is Authorised");
 
-        const {courseId, userId} = req.body.payload.payment.entity.notes;
+        const {courseId, userId} = req.body.payload.payment.entity.notes;   
 
         try{
                 //fulfil the action
@@ -123,7 +123,7 @@ exports.verifySignature = async (req, res) => {
 
                 console.log(enrolledCourse);
 
-                //find the student andadd the course to their list enrolled courses me 
+                //find the student and add the course to their list enrolled courses
                 const enrolledStudent = await User.findOneAndUpdate(
                                                 {_id:userId},
                                                 {$push:{courses:courseId}},
