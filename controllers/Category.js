@@ -60,7 +60,7 @@ exports.categoryPageDetails = async (req, res) => {
                     message:'Data Not Found',
                 });
             }
-            //get courses for different categories
+            //get coursesfor different categories
             const differentCategories = await Category.find({
                                          _id: {$ne: categoryId},
                                          })
